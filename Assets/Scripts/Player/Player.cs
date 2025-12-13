@@ -156,6 +156,7 @@ public class Player : MonoBehaviour
                     ModalManager.Instance.ShowGameOverModal(buildingData);
                     break;
                 case BuildingType.Other:
+                    ScoreManager.Instance.IncrementCount();
                     ModalManager.Instance.ShowSuccessModal(buildingData);
                     break;
             }
