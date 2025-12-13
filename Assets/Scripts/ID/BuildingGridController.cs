@@ -6,82 +6,104 @@ public class BuildingGridController : MonoBehaviour
 {
     [Header("Databases")]
     public BuildingObjectDatabase kyotoDatabase; // 京都
-    public BuildingObjectDatabase otherDatabase; // その他（1個使う）
+    public BuildingObjectDatabase otherDatabase; // その他
 
     [Header("Slots")]
     public Transform slotsRoot; // 36個のCubeの親
+
+    [Header("Generation Settings")]
+    [SerializeField] private int _numberOfKyotoBuildings = 35;
+    [SerializeField] private int _numberOfOtherBuildings = 1;
 
     void Start()
     {
         GenerateAndReplace();
     }
+    
+    /// <summary>
+    /// Creates a new queue of building data, shuffled randomly.
+    /// </summary>
+    private Queue<BuildingData> CreateShuffledQueue(BuildingData[] database)
+    {
+        if (database == null || database.Length == 0)
+        {
+            return new Queue<BuildingData>();
+        }
+        return new Queue<BuildingData>(database.OrderBy(_ => Random.value));
+    }
 
     void GenerateAndReplace()
     {
         // --- Slot取得 ---
-        BuildingSlot[] slots =
-            slotsRoot.GetComponentsInChildren<BuildingSlot>(true);
+        BuildingSlot[] slots = slotsRoot.GetComponentsInChildren<BuildingSlot>(true);
+        int actualSlotCount = slots.Length;
 
-        int slotCount = slots.Length; // 36想定
-        if (slotCount != 36)
+        if (actualSlotCount == 0)
         {
-            Debug.LogError($"Slot数が36ではありません: {slotCount}");
+            Debug.LogError("No BuildingSlots found under slotsRoot. Cannot generate any buildings.");
             return;
         }
 
         // --- Databaseチェック ---
-        if (kyotoDatabase.OtherBuildings.Length == 0)
+        if (kyotoDatabase == null || kyotoDatabase.OtherBuildings == null || kyotoDatabase.OtherBuildings.Length == 0)
         {
-            Debug.LogError("KyotoDatabase に BuildingData がありません");
-            return;
+            Debug.LogError("KyotoDatabase is not properly configured or is empty.");
+            _numberOfKyotoBuildings = 0; // Cannot generate Kyoto buildings
+        }
+        if (otherDatabase == null || otherDatabase.OtherBuildings == null || otherDatabase.OtherBuildings.Length == 0)
+        {
+            Debug.LogError("OtherDatabase is not properly configured or is empty.");
+            _numberOfOtherBuildings = 0; // Cannot generate Other buildings
         }
 
-        if (otherDatabase.OtherBuildings.Length == 0)
+        // --- 入力値のバリデーション ---
+        _numberOfKyotoBuildings = Mathf.Max(0, _numberOfKyotoBuildings);
+        _numberOfOtherBuildings = Mathf.Max(0, _numberOfOtherBuildings);
+
+        int totalRequestedBuildings = _numberOfKyotoBuildings + _numberOfOtherBuildings;
+        
+        int finalKyotoCount = _numberOfKyotoBuildings;
+        int finalOtherCount = _numberOfOtherBuildings;
+
+        if (totalRequestedBuildings > actualSlotCount)
         {
-            Debug.LogError("OtherDatabase に BuildingData がありません");
-            return;
+            Debug.LogWarning($"Requested to generate {totalRequestedBuildings} buildings, but only {actualSlotCount} slots available. Adjusting counts.");
+            // Adjust counts proportionally, but this can get complex. A simpler approach is to prioritize one type.
+            // Let's prioritize 'Other' as the original logic did.
+            finalOtherCount = Mathf.Min(_numberOfOtherBuildings, actualSlotCount);
+            finalKyotoCount = actualSlotCount - finalOtherCount;
         }
-
-        // ===============================
-        // ① Other から必ず1個選ぶ
-        // ===============================
-        BuildingData otherBuilding =
-            otherDatabase.OtherBuildings[
-                Random.Range(0, otherDatabase.OtherBuildings.Length)
-            ];
-
-        // ===============================
-        // ② Kyoto 用：一巡保証Queueを作る
-        // ===============================
-        Queue<BuildingData> kyotoPrimaryQueue =
-            new Queue<BuildingData>(
-                kyotoDatabase.OtherBuildings
-                    .OrderBy(_ => Random.value)
-            );
 
         List<BuildingData> finalList = new List<BuildingData>();
-        finalList.Add(otherBuilding); // ← Other を必ず1回
+        var kyotoQueue = CreateShuffledQueue(kyotoDatabase.OtherBuildings);
+        var otherQueue = CreateShuffledQueue(otherDatabase.OtherBuildings);
 
         // ===============================
-        // ③ 残り35個を Kyoto で埋める
+        // ① 'Other' Buildings を選ぶ
         // ===============================
-        while (finalList.Count < slotCount)
+        for (int i = 0; i < finalOtherCount; i++)
         {
-            if (kyotoPrimaryQueue.Count > 0)
+            if (otherQueue.Count == 0)
             {
-                // まずは全種類を一度ずつ
-                finalList.Add(kyotoPrimaryQueue.Dequeue());
+                otherQueue = CreateShuffledQueue(otherDatabase.OtherBuildings);
             }
-            else
-            {
-                // 使い切った後は重複OK
-                int r = Random.Range(0, kyotoDatabase.OtherBuildings.Length);
-                finalList.Add(kyotoDatabase.OtherBuildings[r]);
-            }
+            finalList.Add(otherQueue.Dequeue());
         }
 
         // ===============================
-        // ④ 最終シャッフル（配置ランダム）
+        // ② 'Kyoto' Buildings を選ぶ
+        // ===============================
+        for (int i = 0; i < finalKyotoCount; i++)
+        {
+            if (kyotoQueue.Count == 0)
+            {
+                kyotoQueue = CreateShuffledQueue(kyotoDatabase.OtherBuildings);
+            }
+            finalList.Add(kyotoQueue.Dequeue());
+        }
+        
+        // ===============================
+        // ③ 最終シャッフル（配置ランダム）
         // ===============================
         Queue<BuildingData> finalQueue =
             new Queue<BuildingData>(
@@ -89,27 +111,22 @@ public class BuildingGridController : MonoBehaviour
             );
 
         Debug.Log("=== Final Building Queue ===");
-        Debug.Log(string.Join(
-            ", ",
-            finalQueue.Select(b => b.BuildingName)
-        ));
+        Debug.Log(string.Join(", ", finalQueue.Select(b => b.BuildingName)));
 
         // ===============================
-        // ⑤ 全部そろってから一括置き換え
+        // ④ 全部そろってから一括置き換え
         // ===============================
-        foreach (var slot in slots)
+        for (int i = 0; i < actualSlotCount; i++)
         {
-            BuildingData data = finalQueue.Dequeue();
-
-            Instantiate(
-                data.BuildingObject,
-                slot.transform.position,
-                slot.transform.rotation
-            );
-
-            Destroy(slot.gameObject);
+            if (finalQueue.Count > 0)
+            {
+                BuildingData data = finalQueue.Dequeue();
+                Instantiate(data.BuildingObject, slots[i].transform.position, slots[i].transform.rotation, slotsRoot);
+            }
+            // Destroy the slot regardless of whether it was filled
+            Destroy(slots[i].gameObject);
         }
-
-        Debug.Log("Kyoto + Other（35 + 1）配置完了");
+        
+        Debug.Log($"Buildings配置完了: 生成された京都 {finalKyotoCount} + その他 {finalOtherCount}. 合計 {finalList.Count}.");
     }
 }
