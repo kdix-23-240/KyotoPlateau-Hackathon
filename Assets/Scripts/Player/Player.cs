@@ -1,5 +1,5 @@
-using NetTopologySuite.Index.Bintree;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
@@ -9,6 +9,9 @@ public class Player : MonoBehaviour
     private float _cameraSpeedVertical;
     private float _cameraSpeedHorizontal;
     private float _rayDistance;
+    private bool _isCaughtObject = false;
+    private GameObject _caughtObject;
+    [SerializeField] private GameObject _successModal;
 
     void Awake()
     {
@@ -16,12 +19,15 @@ public class Player : MonoBehaviour
         _cameraSpeedVertical = _playerSetting.CameraSpeedVertical;
         _cameraSpeedHorizontal = _playerSetting.CameraSpeedHorizontal;
         _rayDistance = _playerSetting.RayDistance;
+        Debug.Log("Player script initialized. Ray distance: " + _rayDistance);
     }
 
     void Update()
     {
         Move();
         CameraMove();
+        LookForObjects();
+        HandleInteraction();
 
     #if UNITY_EDITOR
             OnDrawGizmos();
@@ -59,6 +65,83 @@ public class Player : MonoBehaviour
             _camera.transform.Rotate(-mouseY * _cameraSpeedVertical * Time.deltaTime, 0f, 0f);
             // マウスの水平移動でプレイヤーの左右回転
             transform.Rotate(0f, mouseX * _cameraSpeedHorizontal * Time.deltaTime, 0f);
+        }
+    }
+    
+    private void LookForObjects()
+    {
+        Ray ray = new Ray(_camera.transform.position, _camera.transform.forward);
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit, _rayDistance))
+        {
+            if (_caughtObject != hit.collider.gameObject)
+            {
+                Debug.Log("Looking at: " + hit.collider.gameObject.name);
+            }
+            _isCaughtObject = true;
+            _caughtObject = hit.collider.gameObject;
+        }
+        else
+        {
+            if (_caughtObject != null)
+            {
+                Debug.Log("No longer looking at any object.");
+            }
+            _isCaughtObject = false;
+            _caughtObject = null;
+        }
+    }
+
+    private void HandleInteraction()
+    {
+        if (Input.GetKeyDown(KeyCode.Space) && _isCaughtObject)
+        {
+            Debug.Log("Space pressed while looking at an object.");
+
+            if (_caughtObject == null)
+            {
+                Debug.LogError("_caughtObject is null, but _isCaughtObject is true. This should not happen.");
+                return;
+            }
+
+            Debug.Log("Attempting to interact with: " + _caughtObject.name);
+
+            var buildingDataKeeper = _caughtObject.GetComponent<BuildingDataKeeper>();
+            if (buildingDataKeeper == null)
+            {
+                Debug.LogError("The object '" + _caughtObject.name + "' does not have a BuildingDataKeeper component.", _caughtObject);
+                return;
+            }
+
+            var buildingData = buildingDataKeeper.BuildingData;
+            if (buildingData == null)
+            {
+                Debug.LogError("BuildingData on '" + _caughtObject.name + "' is null.", _caughtObject);
+                return;
+            }
+
+            if (_successModal == null)
+            {
+                Debug.LogError("_successModal is not assigned in the Inspector on the Player script.");
+                return;
+            }
+
+            var successModalComponent = _successModal.GetComponent<SuccessModal>();
+            if (successModalComponent == null)
+            {
+                Debug.LogError("The assigned _successModal GameObject does not have a SuccessModal component.", _successModal);
+                return;
+            }
+
+            Debug.Log("All components found. Calling SuccessModal.Show().");
+            successModalComponent.Show(
+                buildingData.BuildingImage,
+                buildingData.PrefectureName,
+                buildingData.BuildingName,
+                buildingData.Description
+            );
+            Debug.Log("Successfully called Show() on modal for: " + _caughtObject.name);
         }
     }
 
