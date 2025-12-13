@@ -10,7 +10,6 @@ public class Player : MonoBehaviour
     private float _rayDistance;
     private bool _isCaughtObject = false;
     private GameObject _caughtObject;
-    [SerializeField] private GameObject _successModal;
 
     // For outline effect
     private Shader _outlineShader;
@@ -41,7 +40,7 @@ public class Player : MonoBehaviour
         Move();
         CameraMove();
         LookForObjects();
-        HandleInteraction();
+        ProcessCheckInput();
 
     #if UNITY_EDITOR
             OnDrawGizmos();
@@ -133,56 +132,55 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void HandleInteraction()
+    private void ProcessCheckInput()
     {
         if (Input.GetKeyDown(KeyCode.Space) && _isCaughtObject)
         {
-            Debug.Log("Space pressed while looking at an object.");
-
             if (_caughtObject == null)
             {
                 Debug.LogError("_caughtObject is null, but _isCaughtObject is true. This should not happen.");
                 return;
             }
-
-            Debug.Log("Attempting to interact with: " + _caughtObject.name);
-
-            var buildingDataKeeper = _caughtObject.GetComponent<BuildingDataKeeper>();
-            if (buildingDataKeeper == null)
-            {
-                Debug.LogError("The object '" + _caughtObject.name + "' does not have a BuildingDataKeeper component.", _caughtObject);
-                return;
-            }
-
-            var buildingData = buildingDataKeeper.BuildingData;
-            if (buildingData == null)
-            {
-                Debug.LogError("BuildingData on '" + _caughtObject.name + "' is null.", _caughtObject);
-                return;
-            }
-
-            if (_successModal == null)
-            {
-                Debug.LogError("_successModal is not assigned in the Inspector on the Player script.");
-                return;
-            }
-
-            var successModalComponent = _successModal.GetComponent<SuccessModal>();
-            if (successModalComponent == null)
-            {
-                Debug.LogError("The assigned _successModal GameObject does not have a SuccessModal component.", _successModal);
-                return;
-            }
-
-            Debug.Log("All components found. Calling SuccessModal.Show().");
-            successModalComponent.Show(
-                buildingData.BuildingImage,
-                buildingData.PrefectureName,
-                buildingData.BuildingName,
-                buildingData.Description
-            );
-            Debug.Log("Successfully called Show() on modal for: " + _caughtObject.name);
+            CheckObject(_caughtObject);
         }
+    }
+
+    private void CheckObject(GameObject obj)
+    {
+        if (TryGetBuildingData(obj, out BuildingData buildingData))
+        {
+            BuildingType type = BuildingJudger.Judge(buildingData);
+            switch (type)
+            {
+                case BuildingType.Kyoto:
+                    ModalManager.Instance.ShowGameOverModal(buildingData);
+                    break;
+                case BuildingType.Other:
+                    ModalManager.Instance.ShowSuccessModal(buildingData);
+                    break;
+            }
+        }
+    }
+
+    private bool TryGetBuildingData(GameObject obj, out BuildingData buildingData)
+    {
+        buildingData = null;
+        Debug.Log("Attempting to interact with: " + obj.name);
+
+        var buildingDataKeeper = obj.GetComponent<BuildingDataKeeper>();
+        if (buildingDataKeeper == null)
+        {
+            Debug.LogError("The object '" + obj.name + "' does not have a BuildingDataKeeper component.", obj);
+            return false;
+        }
+
+        buildingData = buildingDataKeeper.BuildingData;
+        if (buildingData == null)
+        {
+            Debug.LogError("BuildingData on '" + obj.name + "' is null.", obj);
+            return false;
+        }
+        return true;
     }
 
 #if UNITY_EDITOR
