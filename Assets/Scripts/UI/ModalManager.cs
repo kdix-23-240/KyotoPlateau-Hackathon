@@ -50,8 +50,20 @@ public class ModalManager : MonoBehaviour
             Debug.LogError("_gameOverModal is not assigned in the Inspector on the ModalManager script.");
             return;
         }
-        
+
+        var gameOverModalComponent = _gameOverModal.GetComponent<SuccessModal>();
+        if (gameOverModalComponent == null)
+        {
+            Debug.LogError("The assigned _gameOverModal GameObject does not have a SuccessModal component.", _gameOverModal);
+            return;
+        }
+
+        gameOverModalComponent.Show(
+            data.BuildingImage,
+            data.PrefectureName,
+            data.BuildingName,
+            data.Description
+        );
         Debug.Log("Game Over: Checked a Kyoto building (" + data.BuildingName + ").");
-        _gameOverModal.SetActive(true);
     }
 }
