@@ -6,6 +6,18 @@ public class ScoreManager : MonoBehaviour
 
     public int CheckedObjectCount { get; private set; } = 0;
     public int TotalOthersBuildingCount { get; set; } = 0;
+    
+    public float ScoreRate
+    {
+        get
+        {
+            if (TotalOthersBuildingCount == 0)
+            {
+                return 0f;
+            }
+            return ((float)CheckedObjectCount / TotalOthersBuildingCount) * 100f;
+        }
+    }
 
     private void Awake()
     {
