@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c394712cbc81a4e3198f041b6e21b968, type: 3}
   m_Name: PlayerSetting
   m_EditorClassIdentifier: 
-  MoveSpeed: 1
+  MoveSpeed: 2
   CameraSpeedVertical: 500
   CameraSpeedHorizontal: 500
   RayDistance: 3
