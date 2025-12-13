@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
@@ -13,6 +12,12 @@ public class Player : MonoBehaviour
     private GameObject _caughtObject;
     [SerializeField] private GameObject _successModal;
 
+    // For outline effect
+    private Shader _outlineShader;
+    private Material _outlineMaterial;
+    private Renderer _highlightedRenderer;
+    private Material[] _originalMaterials;
+
     void Awake()
     {
         _playerSpeed = _playerSetting.MoveSpeed;
@@ -20,6 +25,15 @@ public class Player : MonoBehaviour
         _cameraSpeedHorizontal = _playerSetting.CameraSpeedHorizontal;
         _rayDistance = _playerSetting.RayDistance;
         Debug.Log("Player script initialized. Ray distance: " + _rayDistance);
+
+        // Initialize for outline effect
+        _outlineShader = Shader.Find("Custom/OutlineOnly");
+        if (_outlineShader == null)
+        {
+            Debug.LogError("Outline shader 'Custom/OutlineOnly' not found. Make sure it's in the project and there are no compilation errors.", this);
+        }
+        _outlineMaterial = new Material(_outlineShader);
+        _outlineMaterial.SetColor("_OutlineColor", Color.yellow);
     }
 
     void Update()
@@ -78,6 +92,20 @@ public class Player : MonoBehaviour
             if (_caughtObject != hit.collider.gameObject)
             {
                 Debug.Log("Looking at: " + hit.collider.gameObject.name);
+                
+                // A new object is being looked at. Remove outline from the previous one.
+                RemoveOutline();
+
+                // Add outline to the new one.
+                _highlightedRenderer = hit.collider.GetComponent<Renderer>();
+                if (_highlightedRenderer != null)
+                {
+                    _originalMaterials = _highlightedRenderer.materials;
+                    Material[] newMaterials = new Material[_originalMaterials.Length + 1];
+                    _originalMaterials.CopyTo(newMaterials, 0);
+                    newMaterials[newMaterials.Length - 1] = _outlineMaterial;
+                    _highlightedRenderer.materials = newMaterials;
+                }
             }
             _isCaughtObject = true;
             _caughtObject = hit.collider.gameObject;
@@ -87,9 +115,21 @@ public class Player : MonoBehaviour
             if (_caughtObject != null)
             {
                 Debug.Log("No longer looking at any object.");
+                // We are no longer looking at anything, so remove the outline.
+                RemoveOutline();
             }
             _isCaughtObject = false;
             _caughtObject = null;
+        }
+    }
+
+    private void RemoveOutline()
+    {
+        if (_highlightedRenderer != null)
+        {
+            _highlightedRenderer.materials = _originalMaterials;
+            _highlightedRenderer = null;
+            _originalMaterials = null;
         }
     }
 

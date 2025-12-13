@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: PlayerSetting
   m_EditorClassIdentifier: 
   MoveSpeed: 1
-  CameraSpeedVertical: 150
-  CameraSpeedHorizontal: 150
+  CameraSpeedVertical: 500
+  CameraSpeedHorizontal: 500
   RayDistance: 3
