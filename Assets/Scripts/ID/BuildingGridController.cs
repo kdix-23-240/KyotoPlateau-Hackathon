@@ -74,6 +74,16 @@ public class BuildingGridController : MonoBehaviour
             finalKyotoCount = actualSlotCount - finalOtherCount;
         }
 
+        if (ScoreManager.Instance != null)
+        {
+            ScoreManager.Instance.TotalOthersBuildingCount = finalOtherCount;
+        }
+        else
+        {
+            Debug.LogError("ScoreManager.Instance is null. Cannot set TotalOthersBuildingCount.");
+        }
+
+
         List<BuildingData> finalList = new List<BuildingData>();
         var kyotoQueue = CreateShuffledQueue(kyotoDatabase.OtherBuildings);
         var otherQueue = CreateShuffledQueue(otherDatabase.OtherBuildings);

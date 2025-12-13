@@ -5,6 +5,7 @@ public class ScoreManager : MonoBehaviour
     public static ScoreManager Instance { get; private set; }
 
     public int CheckedObjectCount { get; private set; } = 0;
+    public int TotalOthersBuildingCount { get; set; } = 0;
 
     private void Awake()
     {

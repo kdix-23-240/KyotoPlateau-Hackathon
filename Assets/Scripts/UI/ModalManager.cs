@@ -7,6 +7,8 @@ public class ModalManager : MonoBehaviour
 
     public static ModalManager Instance { get; private set; }
 
+    private float _completeRate; // New field
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -51,7 +53,21 @@ public class ModalManager : MonoBehaviour
             return;
         }
 
-        var gameOverModalComponent = _gameOverModal.GetComponent<SuccessModal>();
+        // Calculate _completeRate
+        int checkedCount = ScoreManager.Instance.CheckedObjectCount;
+        int totalOthers = ScoreManager.Instance.TotalOthersBuildingCount;
+        
+        if (totalOthers > 0)
+        {
+            _completeRate = ((float)checkedCount / totalOthers) * 100f;
+        }
+        else
+        {
+            _completeRate = 0f; // No 'other' buildings to check, so 0% completion.
+        }
+        Debug.Log($"Game Over! Checked: {checkedCount} / {totalOthers} Other buildings. Complete Rate: {_completeRate:F2}%");
+
+        var gameOverModalComponent = _gameOverModal.GetComponent<SuccessModal>(); // This might be wrong, but keep for now.
         if (gameOverModalComponent == null)
         {
             Debug.LogError("The assigned _gameOverModal GameObject does not have a SuccessModal component.", _gameOverModal);
