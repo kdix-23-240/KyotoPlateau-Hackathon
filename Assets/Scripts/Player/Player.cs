@@ -158,6 +158,10 @@ public class Player : MonoBehaviour
                 case BuildingType.Other:
                     ScoreManager.Instance.IncrementCount();
                     ModalManager.Instance.ShowSuccessModal(buildingData);
+                    Destroy(obj);
+                    RemoveOutline();
+                    _caughtObject = null;
+                    _isCaughtObject = false;
                     break;
             }
         }
