@@ -15,4 +15,3 @@ MonoBehaviour:
   OtherBuildings:
   - {fileID: 11400000, guid: 3254ee5766741469099c89a0ccbfa5c9, type: 2}
   - {fileID: 11400000, guid: db0af7d12acc94d368ce177e5044e2ef, type: 2}
-  - {fileID: 11400000, guid: e61539fe2769f4a70a022b5afd8aeee1, type: 2}
