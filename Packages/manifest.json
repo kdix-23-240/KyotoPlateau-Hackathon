@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "com.synesthesias.plateau-unity-sdk": "file:/Users/mikamiakihide/Downloads/PLATEAU-SDK-for-Untiy-v4.0.1.tgz",
+    "com.synesthesias.plateau-unity-sdk": "file:C:/Users/Owner/PLATEAU-SDK-for-Untiy-v4.0.1.tgz",
     "com.unity.collab-proxy": "2.10.2",
     "com.unity.feature.development": "1.0.1",
     "com.unity.textmeshpro": "3.0.7",

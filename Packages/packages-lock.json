@@ -8,7 +8,7 @@
       "url": "https://packages.unity.com"
     },
     "com.synesthesias.plateau-unity-sdk": {
-      "version": "file:/Users/mikamiakihide/Downloads/PLATEAU-SDK-for-Untiy-v4.0.1.tgz",
+      "version": "file:C:/Users/Owner/PLATEAU-SDK-for-Untiy-v4.0.1.tgz",
       "depth": 0,
       "source": "local-tarball",
       "dependencies": {
