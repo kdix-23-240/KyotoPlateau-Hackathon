@@ -2450,6 +2450,7 @@ MonoBehaviour:
   kyotoDatabase: {fileID: 11400000, guid: fe9480a33e7de4468b087124b5cfcf67, type: 2}
   otherDatabase: {fileID: 11400000, guid: 2cd8d2b51d44f4c3ea164f0dd524a568, type: 2}
   slotsRoot: {fileID: 1523011697}
+
   _numberOfKyotoBuildings: 12
   _numberOfOtherBuildings: 4
 --- !u!4 &538102584
