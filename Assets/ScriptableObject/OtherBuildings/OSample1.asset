@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f27297620fa244e9488ab4ec1716b358, type: 3}
   m_Name: OSample1
   m_EditorClassIdentifier: 
-  PrefectureName: "\u5927\u962A\u5E9C"
-  BuildingObject: {fileID: 9219422750257892882, guid: 4293c8014fa314e4da31b68307bc9662, type: 3}
+  PrefectureName: "\u6771\u4EAC\u30BF\u30EF\u30FC"
+  BuildingObject: {fileID: 919132149155446097, guid: eadf2f2eb8b4e7c449de9014cc92bbdf, type: 3}
   BuildingImage: {fileID: 21300000, guid: 93fd4730c230a48cb94b32abab2d84c0, type: 3}
-  BuildingName: "\u5927\u962A\u5E9C\u306E\u30B5\u30F3\u30D7\u30EB"
-  Description: "\u3053\u308C\u306F\u5927\u962A\u5E9C\u3067\u3059\u3002"
+  BuildingName: "\u6771\u4EAC\u30BF\u30EF\u30FC"
+  Description: "\u3053\u308C\u306F\u6771\u4EAC\u30BF\u30EF\u30FC\u3067\u3059\u3002"
