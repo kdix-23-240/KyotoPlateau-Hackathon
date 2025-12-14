@@ -2224,8 +2224,8 @@ MonoBehaviour:
   kyotoDatabase: {fileID: 11400000, guid: fe9480a33e7de4468b087124b5cfcf67, type: 2}
   otherDatabase: {fileID: 11400000, guid: 2cd8d2b51d44f4c3ea164f0dd524a568, type: 2}
   slotsRoot: {fileID: 1523011697}
-  _numberOfKyotoBuildings: 0
-  _numberOfOtherBuildings: 16
+  _numberOfKyotoBuildings: 14
+  _numberOfOtherBuildings: 2
 --- !u!4 &538102584
 Transform:
   m_ObjectHideFlags: 0

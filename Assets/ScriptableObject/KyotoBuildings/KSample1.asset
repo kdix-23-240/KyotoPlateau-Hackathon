@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: KSample1
   m_EditorClassIdentifier: 
   PrefectureName: "\u4EAC\u90FD\u5E9C"
-  BuildingObject: {fileID: 9219422750257892882, guid: cf9dba80e35da46e5b21acf3cb2ffd70, type: 3}
+  BuildingObject: {fileID: 8794553105549795664, guid: d19e3124d62f0ea4699e11824e52f5fc, type: 3}
   BuildingImage: {fileID: 21300000, guid: 3740df3b0a1274d9da6c5f1a06e7b46e, type: 3}
-  BuildingName: "\u30B5\u30F3\u30D7\u30EB1"
-  Description: "\u3053\u308C\u306F\u30B5\u30F3\u30D7\u30EB1\u3067\u3059"
+  BuildingName: "\u4E94\u91CD\u5854"
+  Description: "\u3053\u308C\u306F\u4E94\u91CD\u5854\u3067\u3059"
